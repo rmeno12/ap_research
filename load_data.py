@@ -39,4 +39,4 @@ def save_data(data_inp, dir_head):
             print("Done with row", row)
 
 
-save_data(manual_data, 'manual')
+save_data(machine_data, 'machine')
