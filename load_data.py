@@ -29,9 +29,9 @@ def load_format_image(url):
 def save_data(data_inp, dir_head):
     # os.rmdir('{}_dogs'.format(dir_head))
     # os.rmdir('{}_cats'.format(dir_head))
-    os.mkdir('{}_dogs'.format(dir_head))
-    os.mkdir('{}_cats'.format(dir_head))
-    for row in range(len(data_inp.index)):
+    # os.mkdir('{}_dogs'.format(dir_head))
+    # os.mkdir('{}_cats'.format(dir_head))
+    for row in range(1224, len(data_inp.index)):
         path = 'cats' if data_inp.iat[row, 1] == 1 else 'dogs'
         io.imsave("{}_{}/{}.jpeg".format(dir_head, path, str(row)), load_format_image(data_inp.iat[row, 2]))
 
