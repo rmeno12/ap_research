@@ -1,4 +1,6 @@
+import time
 from tensorflow import keras
+from matplotlib import pyplot as plt
 
 model = keras.Sequential()
 
@@ -29,7 +31,7 @@ model.compile(optimizer='rmsprop',
 model.summary()
 
 
-batch_size = 16
+batch_size = 32
 
 train_datagen = keras.preprocessing.image.ImageDataGenerator(
     rescale=1./255,
@@ -44,10 +46,31 @@ train_generator = train_datagen.flow_from_directory(
     class_mode='binary')
 
 
-model.fit_generator(
+start = time.time()
+history = model.fit_generator(
     train_generator,
     steps_per_epoch=2000 // batch_size,
-    epochs=20
+    epochs=50,
+    verbose=1
 )
+end = time.time()
 
-model.save_weights('second_try.h5')
+model.save_weights('manual_image_weights.h5')
+time = 'Total time: ' + str(end-start) + ' seconds'
+f = open('manual_info.txt', 'w+')
+f.write(time + '\n')
+f.write('Final accuracy: ' + str(history.history['acc'][-1]) + '\n')
+f.write('Final loss: ' + str(history.history['loss'][-1]) + '\n')
+f.close()
+
+plt.plot(history.history['acc'])
+plt.title('Model Accuracy')
+plt.ylabel('Accuracy')
+plt.xlabel('Epoch')
+plt.show()
+
+plt.plot(history.history['loss'])
+plt.title('Model Loss')
+plt.ylabel('Loss')
+plt.xlabel('Epoch')
+plt.show()
