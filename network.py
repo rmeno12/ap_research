@@ -40,7 +40,7 @@ train_datagen = keras.preprocessing.image.ImageDataGenerator(
     horizontal_flip=True)
 
 train_generator = train_datagen.flow_from_directory(
-    'data/train_manual',
+    'data/train_crowd',
     target_size=(200, 200),
     batch_size=batch_size,
     class_mode='binary')
@@ -55,9 +55,9 @@ history = model.fit_generator(
 )
 end = time.time()
 
-model.save_weights('manual_image_weights.h5')
+model.save_weights('crowd_image_weights.h5')
 time = 'Total time: ' + str(end-start) + ' seconds'
-f = open('manual_info.txt', 'w+')
+f = open('crowd_info.txt', 'w+')
 f.write(time + '\n')
 f.write('Final accuracy: ' + str(history.history['acc'][-1]) + '\n')
 f.write('Final loss: ' + str(history.history['loss'][-1]) + '\n')
