@@ -55,9 +55,9 @@ history = model.fit_generator(
 )
 end = time.time()
 
-model.save_weights('crowd_image_weights.h5')
+model.save_weights('crowd_image_weights2.h5')
 time = 'Total time: ' + str(end-start) + ' seconds'
-f = open('crowd_info.txt', 'w+')
+f = open('crowd_info2.txt', 'w+')
 f.write(time + '\n')
 f.write('Final accuracy: ' + str(history.history['acc'][-1]) + '\n')
 f.write('Final loss: ' + str(history.history['loss'][-1]) + '\n')
