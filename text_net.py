@@ -1,64 +1,19 @@
 from tensorflow import keras
-from sklearn.preprocessing import LabelBinarizer
-from matplotlib import pyplot as plt
-import sklearn.datasets as skds
-from pathlib import Path
-import pandas as pd
 import numpy as np
+import metrics
+import time
 
-np.random.seed(1237)
+X_train = np.load('data/news-data/X_train.npy')
+Y_train = np.load('data/news-data/Y_train.npy')
+X_val = np.load('data/news-data/X_val.npy')
+Y_val = np.load('data/news-data/Y_val.npy')
+X_test = np.load('data/news-data/X_test.npy')
+Y_test = np.load('data/news-data/Y_test.npy')
+print('Data loaded')
 
-path_train = 'data/20news-bydate-train'
-path_test = 'data/20news-bydate-test'
-
-files_train = skds.load_files(path_train, load_content=False)
-
-label_index_train = files_train.target
-label_names_train = files_train.target_names
-labelled_files_train = files_train.filenames
-
-data_tags = ['filename', 'category', 'news']
-data_list = []
-
-i = 0
-for f in labelled_files_train:
-    if i % 50:
-        print(i, f)
-    data_list.append((f, label_names_train[label_index_train[i]], Path(f).read_text(encoding='windows-1252')))
-    i += 1
-
-data = pd.DataFrame.from_records(data_list, columns=data_tags)
-print("Loaded Data")
-
-train_size = int(len(data) * .8)
-
-train_posts = data['news'][:train_size]
-train_tags = data['category'][:train_size]
-train_files_names = data['filename'][:train_size]
-
-test_posts = data['news'][train_size:]
-test_tags = data['category'][train_size:]
-test_files_names = data['filename'][train_size:]
-
-num_labels = 20
 vocab_size = 15000
-batch_size = 128
-
-tokenizer = keras.preprocessing.text.Tokenizer(num_words=vocab_size)
-tokenizer.fit_on_texts(train_posts)
-
-X_train = tokenizer.texts_to_matrix(train_posts, mode='tfidf')
-X_test = tokenizer.texts_to_matrix(test_posts, mode='tfidf')
-
-encoder = LabelBinarizer()
-encoder.fit(train_tags)
-Y_train = encoder.transform(train_tags)
-Y_test = encoder.transform(test_tags)
-
-encoder = LabelBinarizer()
-encoder.fit(train_tags)
-y_train = encoder.transform(train_tags)
-y_test = encoder.transform(test_tags)
+num_labels = 20
+batch_size = 100
 
 model = keras.models.Sequential()
 model.add(keras.layers.Dense(512, input_shape=(vocab_size,)))
@@ -73,22 +28,22 @@ model.summary()
 
 model.compile(loss='categorical_crossentropy',
               optimizer='adam',
-              metrics=['accuracy'])
+              metrics=['accuracy', metrics.f1, metrics.precision, metrics.recall])
 
+start = time.time()
 history = model.fit(X_train, Y_train,
                     batch_size=batch_size,
-                    epochs=10,
-                    verbose=1,
-                    validation_split=0.1)
+                    epochs=25,
+                    verbose=1)
+end = time.time()
 
-plt.plot(history.history['acc'])
-plt.title('Model Validation Accuracy')
-plt.ylabel('Accuracy')
-plt.xlabel('Epoch')
-plt.show()
-
-plt.plot(history.history['val_acc'])
-plt.title('Model Validation Accuracy')
-plt.ylabel('Accuracy')
-plt.xlabel('Epoch')
-plt.show()
+model.save_weights('weights/txt/bs.h5')
+time = 'Total time: ' + str(end - start) + ' seconds'
+f = open('info/txt/bs.txt', 'w+')
+f.write(time + '\n')
+f.write('Final training accuracy: ' + str(history.history['acc'][-1]) + '\n')
+f.write('Final training loss: ' + str(history.history['loss'][-1]) + '\n')
+f.write('Final training F1: ' + str(history.history['f1'][-1]) + '\n')
+f.write('Final training precision: ' + str(history.history['precision'][-1]) + '\n')
+f.write('Final training recall: ' + str(history.history['recall'][-1]) + '\n')
+f.close()

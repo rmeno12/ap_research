@@ -1,3 +1,0 @@
-Total time: 1058.911993265152 seconds
-Final accuracy: 0.7580645161290323
-Final loss: 0.49054490991177097
